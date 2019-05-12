@@ -155,14 +155,23 @@ function getCurrentSelection() {
 	return editor.document.getText(editor.selection);
 }
 
-function querySympy(command:string, variable:string, code:string, prefix:string){
+function querySympy(command:string, variable:string, code:string, outputName:string){
 	const spawn = require("child_process").spawn;
 	const pythonProcess = spawn('python',[symplexPath, command, variable, code]);
 	pythonProcess.stdout.on('data', (data:string) => {
+		let parsedEquations = JSON.parse(data.toString());
+
+		var generatedCode = '';
+		for(let i = 0; i < parsedEquations.Variables.length;  i++){
+			generatedCode += "let "+parsedEquations.Variables[i].name+" = "+parsedEquations.Variables[i].expr + ";\r\n";
+		}
+		generatedCode += "let "+outputName+" = "+parsedEquations.Expression + ";\r\n";
+
 		if(vscode.window.activeTextEditor){
 			vscode.window.activeTextEditor.edit(builder => {
 				if(vscode.window.activeTextEditor){
-					builder.insert(vscode.window.activeTextEditor.selection.start, prefix+data);
+					generatedCode = generatedCode.substring(0, data.length-2);
+					builder.insert(vscode.window.activeTextEditor.selection.end, "\r\n\r\n"+generatedCode);
 				}
 			});
 		}
@@ -176,28 +185,28 @@ export function activate(context: vscode.ExtensionContext) {
 	let differentiate = vscode.commands.registerCommand('extension.Differentiate', () => {
 		let code = convertToSympy(getCurrentSelection());
 		let command = 'diff'; let variable = 't';
-		querySympy(command, variable, code, "// Derivative wrt t: ");
+		querySympy(command, variable, code, "diffWRT"+variable);
 	});
 	context.subscriptions.push(differentiate);
 
 	let integrate = vscode.commands.registerCommand('extension.Integrate', () => {
 		let code = convertToSympy(getCurrentSelection());
 		let command = 'integrate'; let variable = 't';
-		querySympy(command, variable, code, "// Integral wrt t: ");
+		querySympy(command, variable, code, "intWRT"+variable);
 	});
 	context.subscriptions.push(integrate);
 
 	let findExtrema = vscode.commands.registerCommand('extension.FindExtrema', () => {
 		let code = convertToSympy(getCurrentSelection());
 		let command = 'extrema'; let variable = 't';
-		querySympy(command, variable, code, "// Extrema wrt t: ");
+		querySympy(command, variable, code, "extremaWRT"+variable);
 	});
 	context.subscriptions.push(findExtrema);
 
 	let simplify = vscode.commands.registerCommand('extension.Simplify', () => {
 		let code = convertToSympy(getCurrentSelection());
 		let command = 'simplify'; let variable = 't';
-		querySympy(command, variable, code, "// Simplified: ");
+		querySympy(command, variable, code, "simplified");
 	});
 	context.subscriptions.push(simplify);
 }

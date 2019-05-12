@@ -1,5 +1,7 @@
 import sys
 import sympy
+from sympy import jscode
+import json
 
 command = sys.argv[1]
 variable = sys.argv[2]
@@ -18,10 +20,20 @@ elif(command == 'extrema'):
     if(str(s) == variable):
       result = sympy.diff(expression, s)
       result = sympy.solve(result, s)
+      result = result[0]
 elif(command == 'simplify'):
   result = sympy.simplify(expression)
-elif(command == 'cse'):
-  result = sympy.cse(expression)
 
-print(str(result) + "\n// AST: "+str(sympy.srepr(result)))
+pythonDict = {}
+pythonDict["Variables"], pythonDict["Expression"] = sympy.cse(result)
+
+for i, expr in enumerate(pythonDict["Variables"]):
+  tdict = {}
+  tdict["name"] = str(expr[0])
+  tdict["expr"] = str(sympy.jscode(expr[1]))
+  pythonDict["Variables"][i] = tdict
+
+pythonDict["Expression"] = sympy.jscode(pythonDict["Expression"][0])
+
+print(json.dumps(pythonDict, indent=4))
 sys.stdout.flush()
