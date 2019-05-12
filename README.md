@@ -6,7 +6,7 @@ A Symbolic CAS that operates directly on code.
 
 > Allows users to highlight blocks of math code and right-click to symbolically integrate, derive, simplify, and solve for the extrema.
 
-\!\[ShortSymplex\]\(images/ShortSymplex.gif\)
+<img src="images/ShortSymplex.gif">
 
 ## Requirements
 
