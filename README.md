@@ -1,6 +1,6 @@
 # Symplex
 
-A Symbolic CAS that operates directly on code.
+A Symbolic CAS that operates directly on Javascript and Python code.
 
 ## Features
 
@@ -18,7 +18,20 @@ Symplex requires that Python and `SymPy` are installed.  `SymPy` can be installe
 - There is no way to change which variable it is solving with respect to right now (always `t`).
 - It only exposes the barest fraction of `SymPy`'s true functionality!
 
+### Future Work
+Add support for 
+- Free Variable Configuration
+- Gradients
+- Vectors/Matrices
+- Algebraic "Functions"
+- LaTeX output
+
 ## Release Notes
+
+### 0.0.2 - Python Support
+
+Since `SymPy` operates natively in Python syntax, it was straight-forward to add basic Python support.
+
 
 ### 0.0.1 - Proof of Concept
 

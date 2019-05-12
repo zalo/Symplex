@@ -5,7 +5,8 @@ import json
 
 command = sys.argv[1]
 variable = sys.argv[2]
-expression = sympy.sympify(sys.argv[3])
+extension = sys.argv[3]
+expression = sympy.sympify(sys.argv[4])
 
 if(command == 'diff'):
   for s in expression.free_symbols:
@@ -30,10 +31,16 @@ pythonDict["Variables"], pythonDict["Expression"] = sympy.cse(result)
 for i, expr in enumerate(pythonDict["Variables"]):
   tdict = {}
   tdict["name"] = str(expr[0])
-  tdict["expr"] = str(sympy.jscode(expr[1]))
+  if(extension == "py"):
+    tdict["expr"] = str(expr[1])
+  else:
+    tdict["expr"] = str(sympy.jscode(expr[1]))   
   pythonDict["Variables"][i] = tdict
 
-pythonDict["Expression"] = sympy.jscode(pythonDict["Expression"][0])
+if(extension == "py"):
+  pythonDict["Expression"] = str(pythonDict["Expression"][0])
+else:
+  pythonDict["Expression"] = sympy.jscode(pythonDict["Expression"][0])
 
 print(json.dumps(pythonDict, indent=4))
 sys.stdout.flush()

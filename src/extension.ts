@@ -134,18 +134,59 @@ function delint(node:ts.Node|undefined){
 	return code;
 }
 
-export function convertToSympy(tsSource:string){
-	s = ts.createSourceFile('ast.ts', tsSource, ts.ScriptTarget.Latest);
-	// Walk the AST of the sourceFile and print code!!
-	replacementDict = {};
+function getCurrentFileExtension() {
+	if(vscode.window.activeTextEditor){
+		let currentlyOpenTabfilePath = vscode.window.activeTextEditor.document.fileName;
+		let tokens = currentlyOpenTabfilePath.split('.');
+		return tokens[tokens.length-1];
+	}
+	return "";
+}
+
+export function convertToSympy(source:string) {
 	let code = '';
-	s.forEachChild(cbNode => {
-		code += "\r\n" + delint(cbNode);
-	});
+	replacementDict = {};
+	let extension = getCurrentFileExtension();
+	if(extension === 'js' || extension === 'ts') {
+		s = ts.createSourceFile('ast.ts', source, ts.ScriptTarget.Latest);
 
-	code = code.substring(0, code.length-1);
-	code = code.substring(code.lastIndexOf("\n")+1, code.length);
+		// Walk the AST of the sourceFile and print code!!
+		s.forEachChild(cbNode => {
+			code += "\r\n" + delint(cbNode);
+		});
+	
+		code = code.substring(0, code.length-1);
+		code = code.substring(code.lastIndexOf("\n")+1, code.length);
+	}else if(extension === 'py'){
+		let nocr = source.replace("\r", "");
+		let lines = nocr.split("\n");
+		let counter = 0;
+		lines.forEach(line => {
+			let declarations = line.trim().split("=");
+			if(declarations.length < 2){
+				vscode.window.showErrorMessage("Parsing Error: Python Variable Declarations must be on a single line!");
+			}
 
+			declarations[0] = declarations[0].trim();
+			declarations[1] = declarations[1].replace(";", "").trim();
+			// Substitute
+			for (var key in replacementDict) {
+				declarations[1] = declarations[1].replace(key, replacementDict[key]);
+			}
+			
+			// Accumulate mappings for the substitution
+			if(counter < lines.length-1){
+				replacementDict[declarations[0]] = "("+declarations[1]+")";
+			}else{
+				// Return final, fully substituted code
+				console.log("Final Formula: "+declarations[1]);
+				code = declarations[1];
+			}
+			counter++;
+		});
+	}else{
+		vscode.window.showErrorMessage("Parsing Failed: Filetype Unknown. Supported Filetypes: .js, .ts, .py");
+	}
 	return code;
 }
 
@@ -156,16 +197,20 @@ function getCurrentSelection() {
 }
 
 function querySympy(command:string, variable:string, code:string, outputName:string){
+	let extension = getCurrentFileExtension();
 	const spawn = require("child_process").spawn;
-	const pythonProcess = spawn('python',[symplexPath, command, variable, code]);
+	const pythonProcess = spawn('python', [symplexPath, command, variable, extension, code]);
+
 	pythonProcess.stdout.on('data', (data:string) => {
 		let parsedEquations = JSON.parse(data.toString());
 
 		var generatedCode = '';
+		var variablePrefix = (extension === "py" ? "" : "let ");
+		var variableSuffix = (extension === "py" ? "" : ";");
 		for(let i = 0; i < parsedEquations.Variables.length;  i++){
-			generatedCode += "let "+parsedEquations.Variables[i].name+" = "+parsedEquations.Variables[i].expr + ";\r\n";
+			generatedCode += variablePrefix+parsedEquations.Variables[i].name+" = "+parsedEquations.Variables[i].expr + variableSuffix + "\r\n";
 		}
-		generatedCode += "let "+outputName+" = "+parsedEquations.Expression + ";\r\n";
+		generatedCode += variablePrefix+outputName+" = "+parsedEquations.Expression + variableSuffix + "\r\n";
 
 		if(vscode.window.activeTextEditor){
 			vscode.window.activeTextEditor.edit(builder => {
