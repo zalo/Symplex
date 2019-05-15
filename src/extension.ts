@@ -242,6 +242,12 @@ function querySympy(command:string, variable:string, code:string, outputName:str
 			});
 		}
 	});
+
+	pythonProcess.stderr.on('data', (data:string) => {
+		data = data.toString();
+		vscode.window.showErrorMessage("SymPy Error: \r\n"+data);
+		console.error(data);
+	});
 }
 
 // Register the Right Click Menu Actions
