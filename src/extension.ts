@@ -39,19 +39,24 @@ function delint(node:ts.Node|undefined){
 				code += expression;
 				break;
 
+			case ts.SyntaxKind.PrefixUnaryExpression:
+				code += delint(node.getChildAt(0, s));
+				code += delint(node.getChildAt(1, s));
+				break;
+
 			// Two Argument Operation
 			case ts.SyntaxKind.BinaryExpression:
-				code += delint(node.getChildAt(0, s)) + " ";
-				code += delint(node.getChildAt(1, s)) + " ";
+				code += delint(node.getChildAt(0, s));
+				code += delint(node.getChildAt(1, s));
 				code += delint(node.getChildAt(2, s));
 				break;
 
 			// Operators
 			case ts.SyntaxKind.PlusToken:
-				code += "+";
+				code += " + ";
 				break;
 			case ts.SyntaxKind.MinusToken:
-				code += "-";
+				code += " - ";
 				break;
 			case ts.SyntaxKind.AsteriskToken:
 				code += "*";
@@ -76,7 +81,7 @@ function delint(node:ts.Node|undefined){
 					code = code.substring(0, code.length - 2);
 					code += ')';
 				} else {
-					code += '(';
+					//code += '(';
 					let counter = 0;
 					ts.forEachChild(node, cbNode => {
 						if(counter>0){
@@ -85,7 +90,7 @@ function delint(node:ts.Node|undefined){
 						counter++;
 					});
 					code = code.substring(0, code.length - 2);
-					code += ')';
+					//code += ')';
 				}
 				break;
 			case ts.SyntaxKind.PropertyAccessExpression:
@@ -143,6 +148,16 @@ function getCurrentFileExtension() {
 	return "";
 }
 
+function replaceAll(input:string, toReplace:string, replace:string) {
+	let toReturn = input;
+	let oldstring = '';
+	while (oldstring !== toReturn){
+		oldstring = toReturn+'';
+		toReturn = toReturn.replace(toReplace, replace);
+	}
+	return toReturn;
+}
+
 export function convertToSympy(source:string) {
 	let code = '';
 	replacementDict = {};
@@ -170,8 +185,14 @@ export function convertToSympy(source:string) {
 			declarations[0] = declarations[0].trim();
 			declarations[1] = declarations[1].replace(";", "").trim();
 			// Substitute
+			let replacementKeys:string[] = [];
 			for (var key in replacementDict) {
-				declarations[1] = declarations[1].replace(key, replacementDict[key]);
+				if (replacementDict.hasOwnProperty(key)) {
+					replacementKeys.push(key);
+				}
+			}
+			for(let i = replacementKeys.length-1; i >= 0; i--){
+				declarations[1] = replaceAll(declarations[1], replacementKeys[i], replacementDict[replacementKeys[i]]);
 			}
 			
 			// Accumulate mappings for the substitution
@@ -179,7 +200,6 @@ export function convertToSympy(source:string) {
 				replacementDict[declarations[0]] = "("+declarations[1]+")";
 			}else{
 				// Return final, fully substituted code
-				console.log("Final Formula: "+declarations[1]);
 				code = declarations[1];
 			}
 			counter++;
@@ -187,6 +207,7 @@ export function convertToSympy(source:string) {
 	}else{
 		vscode.window.showErrorMessage("Parsing Failed: Filetype Unknown. Supported Filetypes: .js, .ts, .py");
 	}
+	//console.log("Final Formula: "+code);
 	return code;
 }
 
