@@ -139,11 +139,9 @@ function delint(node:ts.Node|undefined){
 	return code;
 }
 
-function getCurrentFileExtension() {
+function getCurrentLanguage() {
 	if(vscode.window.activeTextEditor){
-		let currentlyOpenTabfilePath = vscode.window.activeTextEditor.document.fileName;
-		let tokens = currentlyOpenTabfilePath.split('.');
-		return tokens[tokens.length-1];
+		return vscode.window.activeTextEditor.document.languageId;
 	}
 	return "";
 }
@@ -161,8 +159,8 @@ function replaceAll(input:string, toReplace:string, replace:string) {
 export function convertToSympy(source:string) {
 	let code = '';
 	replacementDict = {};
-	let extension = getCurrentFileExtension();
-	if(extension === 'js' || extension === 'ts') {
+	let language = getCurrentLanguage();
+	if(language === 'javascript' || language === 'typescript') {
 		s = ts.createSourceFile('ast.ts', source, ts.ScriptTarget.Latest);
 
 		// Walk the AST of the sourceFile and print code!!
@@ -172,7 +170,7 @@ export function convertToSympy(source:string) {
 	
 		code = code.substring(0, code.length-1);
 		code = code.substring(code.lastIndexOf("\n")+1, code.length);
-	}else if(extension === 'py'){
+	}else if(language === 'python'){
 		let nocr = source.replace("\r", "");
 		let lines = nocr.split("\n");
 		let counter = 0;
@@ -218,16 +216,16 @@ function getCurrentSelection() {
 }
 
 function querySympy(command:string, variable:string, code:string, outputName:string){
-	let extension = getCurrentFileExtension();
+	let language = getCurrentLanguage();
 	const spawn = require("child_process").spawn;
-	const pythonProcess = spawn('python', [symplexPath, command, variable, extension, code]);
+	const pythonProcess = spawn('python', [symplexPath, command, variable, language, code]);
 
 	pythonProcess.stdout.on('data', (data:string) => {
 		let parsedEquations = JSON.parse(data.toString());
 
 		var generatedCode = '';
-		var variablePrefix = (extension === "py" ? "" : "let ");
-		var variableSuffix = (extension === "py" ? "" : ";");
+		var variablePrefix = (language === "python" ? "" : "let ");
+		var variableSuffix = (language === "python" ? "" : ";");
 		for(let i = 0; i < parsedEquations.Variables.length;  i++){
 			generatedCode += variablePrefix+parsedEquations.Variables[i].name+" = "+parsedEquations.Variables[i].expr + variableSuffix + "\r\n";
 		}

@@ -34,15 +34,15 @@ pythonDict["Variables"], pythonDict["Expression"] = sympy.cse(result)
 for i, expr in enumerate(pythonDict["Variables"]):
   tdict = {}
   tdict["name"] = str(expr[0])
-  if(extension == "py"):
+  if(extension == "python"):
     tdict["expr"] = str(expr[1])
-  else:
+  elif(extension == "javascript" or extension == "typescript"):
     tdict["expr"] = str(sympy.jscode(expr[1]))   
   pythonDict["Variables"][i] = tdict
 
-if(extension == "py"):
+if(extension == "python"):
   pythonDict["Expression"] = str(pythonDict["Expression"][0])
-else:
+elif(extension == "javascript" or extension == "typescript"):
   pythonDict["Expression"] = sympy.jscode(pythonDict["Expression"][0])
 
 print(json.dumps(pythonDict, indent=4))
