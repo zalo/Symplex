@@ -2,7 +2,7 @@
 	"name": "symplex",
 	"displayName": "Symplex",
 	"description": "Symbolic Manipulation for VS Code",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
@@ -14,51 +14,41 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.Differentiate",
-		"onCommand:extension.Integrate",
-		"onCommand:extension.FindExtrema",
-		"onCommand:extension.Simplify"
+		"onCommand:extension.Evaluate",
+		"onCommand:extension.GetExpression",
+		"onCommand:extension.GetLaTeX"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.Differentiate",
-				"title": "Differentiate"
+				"command": "extension.Evaluate",
+				"title": "Evaluate"
 			},
 			{
-				"command": "extension.Integrate",
-				"title": "Integrate"
+				"command": "extension.GetExpression",
+				"title": "GetExpression"
 			},
 			{
-				"command": "extension.FindExtrema",
-				"title": "FindExtrema"
-			},
-			{
-				"command": "extension.Simplify",
-				"title": "Simplify"
+				"command": "extension.GetLaTeX",
+				"title": "GetLaTeX"
 			}
 		],
 		"menus": {
 			"editor/context": [
 				{
 					"when": "editorHasSelection",
-					"command": "extension.Differentiate",
+					"command": "extension.Evaluate",
 					"group": "Symplex@1"
 				},
 				{
 					"when": "editorHasSelection",
-					"command": "extension.Integrate",
+					"command": "extension.GetExpression",
 					"group": "Symplex@1"
 				},
 				{
 					"when": "editorHasSelection",
-					"command": "extension.FindExtrema",
-					"group": "Symplex@1"
-				},
-				{
-					"when": "editorHasSelection",
-					"command": "extension.Simplify",
+					"command": "extension.GetLaTeX",
 					"group": "Symplex@1"
 				}
 			]

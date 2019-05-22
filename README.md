@@ -4,7 +4,7 @@ A Symbolic CAS that operates directly on Javascript and Python code.
 
 ## Features
 
-> Allows users to highlight blocks of math code and right-click to symbolically integrate, derive, simplify, and solve for the extrema.
+> Allows users to highlight blocks of math code and right-click to symbolically integrate, derive, simplify, and more!
 
 <img src="https://i.imgur.com/pgczpEk.gif">
 
@@ -14,19 +14,32 @@ Symplex requires that Python and `SymPy` are installed.  `SymPy` can be installe
 
 ## Known Issues
 
-- Javascript parsing is extremely fragile, this is due for a major refactor to better accomodate for the inconsistences in the nodegraph sourceFile output.
-- There is no way to change which variable it is solving with respect to right now (always `t`).
-- It only exposes the barest fraction of `SymPy`'s true functionality!
+- Javascript parsing is somewhat fragile, this is due for a major refactor to better accomodate for the inconsistences in the nodegraph sourceFile output.
+- Interface/instructions for executing SymPy functions are somewhat unintuitive right now.
+
+## Adding new languages
+
+To add a new language:
+- Implement the conversion of a block of that language's code to a SymPy string (`convertToSympy()`) inside a new `*LANGUAGE*Support.ts` file.
+- At the top of `extension.ts`, add a new case for your [language's identifier](https://code.visualstudio.com/docs/languages/identifiers), calling your `convertToSympy()` function.
+- In `python/symplex.py`, add a case for your language's conversion (SymPy supports codegen in many languages already, so check to see if it's already there).
+- Test it by building the extension with `F5`!
 
 ### Future Work
+
 Add support for 
-- Free Variable Configuration
+- VS Code Snippets/Better GUI
 - Gradients
 - Vectors/Matrices
 - Algebraic "Functions"
-- LaTeX output
+- [Wolfram CAS Backend?](https://blog.wolfram.com/2019/05/16/announcing-the-wolfram-client-library-for-python/)
 
 ## Release Notes
+
+### 0.0.3 - Major Refactor
+
+Allow writing of arbitrary SymPy operations, encapsulate adding support for new languages, and add LaTeX output!
+
 
 ### 0.0.2 - Python Support
 

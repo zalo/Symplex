@@ -1,241 +1,63 @@
 import * as vscode from 'vscode';
-import * as ts from 'typescript';
+import * as utils from './utils';
+import * as js from './javascriptSupport';
+import * as py from './pythonSupport';
 
-var replacementDict:any = {};
-var s:ts.SourceFile|undefined;
-var symplexPath:string;
-
-function delint(node:ts.Node|undefined){
-	let code = '';
-	if (node && s) {
-		//if(node.getChildCount(s) > 0){
-		//	console.log("Stepping into a node of kind: "+
-		//		ts.SyntaxKind[node.kind]);
-		//	console.log("It should contain "+ node.getChildCount(s) + " nodes for: ");
-		//	ts.forEachChild(node, cbNode => {
-		//		console.log("-"+ts.SyntaxKind[cbNode.kind]+": "+cbNode.getText(s));
-		//	});
-		//} else {
-		//	console.log("Stepping through a node of kind: "+
-		//		ts.SyntaxKind[node.kind]);
-		//}
-
-		switch (node.kind) {
-			//Variable Declaration Parsing
-			//case ts.SyntaxKind.VariableStatement:
-			//	code += delint(node.getChildAt(0, s), s);
-			//	break;
-			case ts.SyntaxKind.VariableDeclarationList:
-				code += delint(node.getChildAt(1, s));
-				break;
-			case ts.SyntaxKind.VariableDeclaration:
-				//Use replacement dictionary
-				let varName = delint(node.getChildAt(0, s));
-				let expression = delint(node.getChildAt(2, s));
-				replacementDict[varName] = expression;
-
-				//code += varName;
-				//code += " = ";
-				code += expression;
-				break;
-
-			case ts.SyntaxKind.PrefixUnaryExpression:
-				code += delint(node.getChildAt(0, s));
-				code += delint(node.getChildAt(1, s));
-				break;
-
-			// Two Argument Operation
-			case ts.SyntaxKind.BinaryExpression:
-				code += delint(node.getChildAt(0, s));
-				code += delint(node.getChildAt(1, s));
-				code += delint(node.getChildAt(2, s));
-				break;
-
-			// Operators
-			case ts.SyntaxKind.PlusToken:
-				code += " + ";
-				break;
-			case ts.SyntaxKind.MinusToken:
-				code += " - ";
-				break;
-			case ts.SyntaxKind.AsteriskToken:
-				code += "*";
-				break;
-			case ts.SyntaxKind.SlashToken:
-				code += "/";
-				break;
-
-			// Higher Level Functions
-			case ts.SyntaxKind.CallExpression:
-				let name = delint(node.getChildAt(0, s));
-				// SPECIAL CODE FOR POW
-				if(name !== "pow"){
-					code += name + '(';
-					let counter = 0;
-					ts.forEachChild(node, cbNode => {
-						if(counter>0){
-							code += delint(cbNode)+", ";
-						}
-						counter++;
-					});
-					code = code.substring(0, code.length - 2);
-					code += ')';
-				} else {
-					//code += '(';
-					let counter = 0;
-					ts.forEachChild(node, cbNode => {
-						if(counter>0){
-							code += delint(cbNode)+"**";
-						}
-						counter++;
-					});
-					code = code.substring(0, code.length - 2);
-					//code += ')';
-				}
-				break;
-			case ts.SyntaxKind.PropertyAccessExpression:
-				if(delint(node.getChildAt(0, s)) === 'Math'){
-					code += delint(node.getChildAt(2, s));
-				}
-				break;
-			case ts.SyntaxKind.ParenthesizedExpression:
-				code += "(" + delint(node.getChildAt(1, s)) + ")";
-				break;
-
-			// Raw printing of the Literals/Names/Identifiers
-			case ts.SyntaxKind.FirstLiteralToken:
-				code += node.getText(s);
-				break;
-			case ts.SyntaxKind.NumericLiteral:
-				code += node.getText(s);
-				break;
-			case ts.SyntaxKind.Identifier:
-				let variableName = node.getText(s);
-
-				// Substitute formula in for variable name when possible!
-				if (variableName in replacementDict) {
-					variableName = "(" + replacementDict[variableName] + ")";
-				}
-				code += variableName;
-				break;
-
-			// NOPs
-			case ts.SyntaxKind.LetKeyword:
-				break;
-			case ts.SyntaxKind.VarKeyword:
-				break;
-		  case ts.SyntaxKind.EndOfFileToken:
-				break;
-			case ts.SyntaxKind.FirstAssignment:
-				break;
-
-			default:
-				code += delint(node.getChildAt(0, s));
-				break;
-		}
+// Transforms the target source code into a Sympy-compatible string expression
+function convertToSympy(source:string) {
+	let language = utils.getCurrentLanguage();
+	if (language === 'javascript' || language === 'typescript') {
+		return js.convertToSympy(source);
+	} else if(language === 'python') {
+		return py.convertToSympy(source);
 	} else {
-		console.log("NODE IS UNDEFINED!");
-	}
-	return code;
-}
-
-function getCurrentLanguage() {
-	if(vscode.window.activeTextEditor){
-		return vscode.window.activeTextEditor.document.languageId;
-	}
-	return "";
-}
-
-function replaceAll(input:string, toReplace:string, replace:string) {
-	let toReturn = input;
-	let oldstring = '';
-	while (oldstring !== toReturn){
-		oldstring = toReturn+'';
-		toReturn = toReturn.replace(toReplace, replace);
-	}
-	return toReturn;
-}
-
-export function convertToSympy(source:string) {
-	let code = '';
-	replacementDict = {};
-	let language = getCurrentLanguage();
-	if(language === 'javascript' || language === 'typescript') {
-		s = ts.createSourceFile('ast.ts', source, ts.ScriptTarget.Latest);
-
-		// Walk the AST of the sourceFile and print code!!
-		s.forEachChild(cbNode => {
-			code += "\r\n" + delint(cbNode);
-		});
-	
-		code = code.substring(0, code.length-1);
-		code = code.substring(code.lastIndexOf("\n")+1, code.length);
-	}else if(language === 'python'){
-		let nocr = source.replace("\r", "");
-		let lines = nocr.split("\n");
-		let counter = 0;
-		lines.forEach(line => {
-			let declarations = line.trim().split("=");
-			if(declarations.length < 2){
-				vscode.window.showErrorMessage("Parsing Error: Python Variable Declarations must be on a single line!");
-			}
-
-			declarations[0] = declarations[0].trim();
-			declarations[1] = declarations[1].replace(";", "").trim();
-			// Substitute
-			let replacementKeys:string[] = [];
-			for (var key in replacementDict) {
-				if (replacementDict.hasOwnProperty(key)) {
-					replacementKeys.push(key);
-				}
-			}
-			for(let i = replacementKeys.length-1; i >= 0; i--){
-				declarations[1] = replaceAll(declarations[1], replacementKeys[i], replacementDict[replacementKeys[i]]);
-			}
-			
-			// Accumulate mappings for the substitution
-			if(counter < lines.length-1){
-				replacementDict[declarations[0]] = "("+declarations[1]+")";
-			}else{
-				// Return final, fully substituted code
-				code = declarations[1];
-			}
-			counter++;
-		});
-	}else{
-		vscode.window.showErrorMessage("Parsing Failed: Filetype Unknown. Supported Filetypes: .js, .ts, .py");
+		vscode.window.showErrorMessage("Parsing Failed: Filetype Unknown. "+
+																		"Supported Filetypes: .js, .ts, .py");
 	}
 	//console.log("Final Formula: "+code);
-	return code;
+	return '';
 }
 
-function getCurrentSelection() {
-	var editor = vscode.window.activeTextEditor;
-	if (!editor) { return ''; }
-	return editor.document.getText(editor.selection);
-}
+// Initializing variables in a few languages
+var variablePrefixes:
+{ [language: string]: string; } = { 
+	"python"     : '',
+	"javscript"  : 'let ',
+	"typescript" : 'let ',
+	"c"          : 'float ',
+	"csharp"     : 'float ',
+	"cpp"        : 'float '
+};
 
-function querySympy(command:string, variable:string, code:string, outputName:string){
-	let language = getCurrentLanguage();
+function querySympy(command:string, code:string, outputName:string){
+	var curCommand = command;
+	let language = utils.getCurrentLanguage();
 	const spawn = require("child_process").spawn;
-	const pythonProcess = spawn('python', [symplexPath, command, variable, language, code]);
+	const pythonProcess = spawn('python', [symplexPath, command, language, code]);
 
 	pythonProcess.stdout.on('data', (data:string) => {
-		let parsedEquations = JSON.parse(data.toString());
+		var generatedText = '';
 
-		var generatedCode = '';
-		var variablePrefix = (language === "python" ? "" : "let ");
-		var variableSuffix = (language === "python" ? "" : ";");
-		for(let i = 0; i < parsedEquations.Variables.length;  i++){
-			generatedCode += variablePrefix+parsedEquations.Variables[i].name+" = "+parsedEquations.Variables[i].expr + variableSuffix + "\r\n";
+		if(curCommand === 'eval') {
+			let parsedEquations = JSON.parse(data.toString());
+			let variablePrefix  = variablePrefixes[language];
+			let variableSuffix  = (language === "python" ? "" : ";");
+			for(let i = 0; i < parsedEquations.Variables.length;  i++){
+				generatedText += variablePrefix+parsedEquations.Variables[i].name + " = " + 
+												   parsedEquations.Variables[i].expr + variableSuffix + "\r\n";
+			}
+			generatedText += variablePrefix+outputName + " = " + 
+												parsedEquations.Expression + variableSuffix + "\r\n";
+		} else if(curCommand === 'latex') {
+			generatedText = data.toString();
 		}
-		generatedCode += variablePrefix+outputName+" = "+parsedEquations.Expression + variableSuffix + "\r\n";
 
 		if(vscode.window.activeTextEditor){
 			vscode.window.activeTextEditor.edit(builder => {
 				if(vscode.window.activeTextEditor){
-					generatedCode = generatedCode.substring(0, data.length-2);
-					builder.insert(vscode.window.activeTextEditor.selection.end, "\r\n\r\n"+generatedCode);
+					generatedText = generatedText.substring(0, data.length-2);
+					builder.insert(vscode.window.activeTextEditor.selection.end, 
+												  "\r\n\r\n"+generatedText);
 				}
 			});
 		}
@@ -248,38 +70,35 @@ function querySympy(command:string, variable:string, code:string, outputName:str
 	});
 }
 
-// Register the Right Click Menu Actions
+var symplexPath:string;
 export function activate(context: vscode.ExtensionContext) {
 	symplexPath = context.asAbsolutePath("/python/symplex.py");
 
-	let differentiate = vscode.commands.registerCommand('extension.Differentiate', () => {
-		let code = convertToSympy(getCurrentSelection());
-		let command = 'diff'; let variable = 't';
-		querySympy(command, variable, code, "diffWRT"+variable);
-	});
-	context.subscriptions.push(differentiate);
+	// Register the Right Click Menu Actions -----------------------------------
+	{
+		let evaluate = vscode.commands.registerCommand('extension.Evaluate', () => {
+			querySympy('eval', convertToSympy(utils.getCurrentSelection()), "result");
+		});
+		context.subscriptions.push(evaluate);
 
-	let integrate = vscode.commands.registerCommand('extension.Integrate', () => {
-		let code = convertToSympy(getCurrentSelection());
-		let command = 'integrate'; let variable = 't';
-		querySympy(command, variable, code, "intWRT"+variable);
-	});
-	context.subscriptions.push(integrate);
+		let expression = vscode.commands.registerCommand('extension.GetExpression', () => {
+			var parsedExpression = convertToSympy(utils.getCurrentSelection());
+			if(vscode.window.activeTextEditor){
+				vscode.window.activeTextEditor.edit(builder => {
+					if(vscode.window.activeTextEditor){
+						builder.insert(vscode.window.activeTextEditor.selection.end, 
+														"\r\n\r\n"+parsedExpression);
+					}
+				});
+			}
+		});
+		context.subscriptions.push(expression);
 
-	let findExtrema = vscode.commands.registerCommand('extension.FindExtrema', () => {
-		let code = convertToSympy(getCurrentSelection());
-		let command = 'extrema'; let variable = 't';
-		querySympy(command, variable, code, "extremaWRT"+variable);
-	});
-	context.subscriptions.push(findExtrema);
-
-	let simplify = vscode.commands.registerCommand('extension.Simplify', () => {
-		let code = convertToSympy(getCurrentSelection());
-		let command = 'simplify'; let variable = 't';
-		querySympy(command, variable, code, "simplified");
-	});
-	context.subscriptions.push(simplify);
+		let laTeX = vscode.commands.registerCommand('extension.GetLaTeX', () => {
+			querySympy('latex', convertToSympy(utils.getCurrentSelection()), "LaTeX");
+		});
+		context.subscriptions.push(laTeX);
+	}
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}
