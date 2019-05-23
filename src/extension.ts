@@ -14,7 +14,6 @@ function convertToSympy(source:string) {
 		vscode.window.showErrorMessage("Parsing Failed: Filetype Unknown. "+
 																		"Supported Filetypes: .js, .ts, .py");
 	}
-	//console.log("Final Formula: "+code);
 	return '';
 }
 
@@ -41,7 +40,7 @@ function querySympy(command:string, code:string, outputName:string){
 			let parsedEquations = JSON.parse(data.toString());
 			if (parsedEquations.returnString) {
 				generatedText = parsedEquations.returnString;
-			}else{
+			} else {
 				let variablePrefix  = variablePrefixes[language];
 				let variableSuffix  = (language === "python" ? "" : ";");
 				for(let i = 0; i < parsedEquations.Variables.length;  i++){
@@ -106,33 +105,43 @@ export function activate(context: vscode.ExtensionContext) {
 
 				const integrateCompletion         = new vscode.CompletionItem('integrate');
 				const diffCompletion              = new vscode.CompletionItem('diff');
+				const limitCompletion             = new vscode.CompletionItem('limit');
+				const seriesCompletion            = new vscode.CompletionItem('series');
 				const solveCompletion             = new vscode.CompletionItem('solve');
-				const extremaCompletion           = new vscode.CompletionItem('extrema');
+				const extremumCompletion          = new vscode.CompletionItem('extremum');
 				const latexCompletion             = new vscode.CompletionItem('latex');
 
 				integrateCompletion.insertText    = new vscode.SnippetString('integrate(${1:expression}, ${2:var})');
 				diffCompletion.insertText         = new vscode.SnippetString('diff(${1:expression}, ${2:var})');
+				limitCompletion.insertText        = new vscode.SnippetString('limit(${1:expression}, ${2:var}, ${3:value})');
+				seriesCompletion.insertText       = new vscode.SnippetString('series(${1:expression}, ${2:var}, ${3:centerValue})');
 				solveCompletion.insertText        = new vscode.SnippetString('solve(${1:expression}, ${2:withRespectTo})');
-				extremaCompletion.insertText      = new vscode.SnippetString('solve(diff(${1:expression}, ${2:withRespectTo}), ${2})');
+				extremumCompletion.insertText     = new vscode.SnippetString('solve(diff(${1:expression}, ${2:withRespectTo}), ${2})');
 				latexCompletion.insertText        = new vscode.SnippetString('latex(${1:expression})');
 
 				integrateCompletion.documentation = new vscode.MarkdownString('Symplex: Symbolic Integral with respect to `var`');
 				diffCompletion.documentation      = new vscode.MarkdownString('Symplex: Symbolic Derivative with respect to `var`');
+				limitCompletion.documentation     = new vscode.MarkdownString('Symplex: Symbolic Limit as `var` approaches `value`');
+				seriesCompletion.documentation    = new vscode.MarkdownString('Symplex: Symbolic Series Expansion of the region `var` = `value` to the 6th order');
 				solveCompletion.documentation     = new vscode.MarkdownString('Symplex: Symbolic Integral with respect to `var`');
-				extremaCompletion.documentation   = new vscode.MarkdownString('Symplex: Symbolic Extrema with respect to `var` \nNote: Only returns the first real extremum.');
+				extremumCompletion.documentation  = new vscode.MarkdownString('Symplex: Symbolic Extrema with respect to `var` \nNote: Only returns the first real extremum.');
 				latexCompletion.documentation     = new vscode.MarkdownString('Symplex: Generate LaTeX from Expressions');
 
 				integrateCompletion.kind          = vscode.CompletionItemKind.Method;
 				diffCompletion.kind               = vscode.CompletionItemKind.Method;
+				limitCompletion.kind              = vscode.CompletionItemKind.Method;
+				seriesCompletion.kind             = vscode.CompletionItemKind.Method;
 				solveCompletion.kind              = vscode.CompletionItemKind.Method;
-				extremaCompletion.kind            = vscode.CompletionItemKind.Method;
+				extremumCompletion.kind           = vscode.CompletionItemKind.Method;
 				latexCompletion.kind              = vscode.CompletionItemKind.Method;
 
 				return [
 					integrateCompletion,
 					diffCompletion,
+					limitCompletion,
+					seriesCompletion,
 					solveCompletion,
-					extremaCompletion,
+					extremumCompletion,
 					latexCompletion
 				];
 			}

@@ -1,9 +1,9 @@
 {
 	"name": "symplex",
 	"displayName": "Symplex",
-	"description": "A Computer Algebra System for your Code",
+	"description": "A Computer Algebra System for your code",
 	"publisher": "zalo",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"engines": {
 		"vscode": "^1.33.0"
 	},

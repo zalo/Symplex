@@ -1,21 +1,27 @@
-# Symplex
+# [Symplex](https://marketplace.visualstudio.com/items?itemName=zalo.symplex)
 
 A Symbolic CAS that operates directly on Javascript and Python code.
 
 ## Features
 
-> Allows users to highlight blocks of math code and right-click to symbolically integrate, derive, simplify, and more!
+> Allows users to highlight blocks of math code and right-click to symbolically `integrate`, `diff`, `limit`, `solve`, `series`, and more!
 
 ![Extremum Demo](images/Demo1.gif)
 
-## Installation
+
+> Enables beautiful code-to-LaTeX conversion via the `latex()` and unevaluated `Integral` and `Derivative` functions.
+
+![LaTeX Demo](images/Demo2.gif)
+
+
+## Requirements
 
 Symplex requires that Python and `SymPy` are installed.  `SymPy` can be installed with `pip install SymPy`.
 
 ## Known Issues
 
 - Javascript parsing is somewhat fragile, this is due for a major refactor to better accomodate for the inconsistences in the nodegraph sourceFile output.
-- Interface/instructions for executing SymPy functions are somewhat unintuitive right now.
+- Only variable assignment and basic arithmetic/trigonometric operations on real numbers are supported.  No for-Loops, control-statements, etc.
 
 ## Adding new languages
 
@@ -23,7 +29,7 @@ To add a new language:
 - Implement the conversion of a block of that language's code to a SymPy string (`convertToSympy()`) inside a new `*LANGUAGE*Support.ts` file.
 - Throughout `extension.ts`, add a new case for your [language's identifier](https://code.visualstudio.com/docs/languages/identifiers), calling your `convertToSympy()` function.
 - In `python/symplex.py`, add a case for your language's conversion (SymPy supports codegen in many languages already, so check to see if it's already there).
-- Test it by building the extension with `F5`!
+- Add it to the `package.json` as well and Test it by building the extension with `F5`!
 
 ### Future Work
 
@@ -35,12 +41,9 @@ Add support for
 
 ## Release Notes
 
-### 0.0.7 - First Release
-
-
 ### 0.0.4 - Add Snippets
 
-Group all Symplex functionality underneath the `symplex.Evaluate` command.  Add snippets which document a few of the SymPy features that Symplex exposes. 
+Group all Symplex functionality underneath the `symplex.Evaluate` command.  Add snippets which document a few of the SymPy features that Symplex exposes.   Also make Python parsing slightly more robust. 
 
 
 ### 0.0.3 - Major Refactor
