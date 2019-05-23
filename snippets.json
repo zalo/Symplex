@@ -5,7 +5,7 @@
 		"body": [
       "integrate(${1:expression}, ${2:withRespectTo})"
 		],
-		"description": "Symbolic Integral with Symplex"
+		"description": "Symbolic Integral for use with Symplex"
   },
   "Derivative": {
     "prefix": "diff",
@@ -13,7 +13,7 @@
 		"body": [
 			"diff(${1:expression}, ${2:withRespectTo})"
 		],
-		"description": "Symbolic Derivative with Symplex"
+		"description": "Symbolic Derivative for use with Symplex"
 	},
   "Solve": {
     "prefix": "solve",
@@ -21,7 +21,7 @@
 		"body": [
 			"solve(${1:expression}, ${2:withRespectTo})"
 		],
-		"description": "Symbolic Roots with Symplex"
+		"description": "Symbolic Roots for use with Symplex"
 	},
   "Simplify": {
     "prefix": "simplify",
@@ -29,6 +29,14 @@
 		"body": [
 			"simplify(${1:expression})"
 		],
-		"description": "Symbolic Simplification with Symplex"
+		"description": "Symbolic Simplification for use with Symplex"
+  },
+  "Generate LaTeX": {
+    "prefix": "latex",
+    "scope": "javascript,typescript,python",
+		"body": [
+			"latex(${1:expression})"
+		],
+		"description": "Generate LaTeX for use with Symplex"
 	}
 }

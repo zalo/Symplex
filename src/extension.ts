@@ -37,19 +37,20 @@ function querySympy(command:string, code:string, outputName:string){
 
 	pythonProcess.stdout.on('data', (data:string) => {
 		var generatedText = '';
-
 		if(curCommand === 'eval') {
 			let parsedEquations = JSON.parse(data.toString());
-			let variablePrefix  = variablePrefixes[language];
-			let variableSuffix  = (language === "python" ? "" : ";");
-			for(let i = 0; i < parsedEquations.Variables.length;  i++){
-				generatedText += variablePrefix+parsedEquations.Variables[i].name + " = " + 
-												   parsedEquations.Variables[i].expr + variableSuffix + "\r\n";
+			if (parsedEquations.returnString) {
+				generatedText = parsedEquations.returnString;
+			}else{
+				let variablePrefix  = variablePrefixes[language];
+				let variableSuffix  = (language === "python" ? "" : ";");
+				for(let i = 0; i < parsedEquations.Variables.length;  i++){
+					generatedText += variablePrefix+parsedEquations.Variables[i].name + " = " + 
+														parsedEquations.Variables[i].expr + variableSuffix + "\r\n";
+				}
+				generatedText += variablePrefix+outputName + " = " + 
+													parsedEquations.Expression + variableSuffix + "\r\n";
 			}
-			generatedText += variablePrefix+outputName + " = " + 
-												parsedEquations.Expression + variableSuffix + "\r\n";
-		} else if(curCommand === 'latex') {
-			generatedText = data.toString();
 		}
 
 		if(vscode.window.activeTextEditor){
@@ -93,11 +94,6 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		});
 		context.subscriptions.push(expression);
-
-		let laTeX = vscode.commands.registerCommand('extension.GetLaTeX', () => {
-			querySympy('latex', convertToSympy(utils.getCurrentSelection()), "LaTeX");
-		});
-		context.subscriptions.push(laTeX);
 	}
 }
 

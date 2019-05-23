@@ -8,14 +8,22 @@ export function convertToSympy(source:string) {
 	let lines = nocr.split("\n");
 	let counter = 0;
 	lines.forEach(line => {
-		let declarations = line.trim().split("=");
+		// Grab only what's before the comment and after the equal sign
+		let declarations = line.trim().split("#")[0].trim().split("=");
 		if(declarations.length < 2){
-      vscode.window.showErrorMessage("Parsing Error: Python Variable "+
-                                      "Declarations must be on a single line!");
+			// Check if remaining line is just whitespace, skip it if so
+			if (!(/\S/.test(declarations[0]))) {
+				counter++;
+				return;
+			}else{
+				vscode.window.showErrorMessage("Parsing Error: Python Variable "+
+																				"Declarations must be on a single line!");
+			}
     }
-    
+
 		declarations[0] = declarations[0].trim();
 		declarations[1] = declarations[1].replace(";", "").trim();
+		
 		// Substitute
 		let replacementKeys:string[] = [];
 		for (var key in replacementDict) {

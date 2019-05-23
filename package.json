@@ -15,23 +15,18 @@
 	],
 	"activationEvents": [
 		"onCommand:extension.Evaluate",
-		"onCommand:extension.GetExpression",
-		"onCommand:extension.GetLaTeX"
+		"onCommand:extension.GetExpression"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "extension.Evaluate",
-				"title": "Evaluate"
+				"title": "Symplex: Symbolic Evaluate"
 			},
 			{
 				"command": "extension.GetExpression",
-				"title": "GetExpression"
-			},
-			{
-				"command": "extension.GetLaTeX",
-				"title": "GetLaTeX"
+				"title": "Symplex: Get Expression"
 			}
 		],
 		"menus": {
@@ -39,17 +34,12 @@
 				{
 					"when": "editorHasSelection && resourceLangId =~ /(javascript|typescript|python)/",
 					"command": "extension.Evaluate",
-					"group": "Symplex@1"
-				},
-				{
-					"when": "editorHasSelection && resourceLangId =~ /(javascript|typescript|python)/",
-					"command": "extension.GetLaTeX",
-					"group": "Symplex@1"
+					"group": "navigation@0"
 				},
 				{
 					"when": "editorHasSelection && resourceLangId =~ replacewiththeabovetodebugparsing",
 					"command": "extension.GetExpression",
-					"group": "Symplex@1"
+					"group": "navigation@1"
 				}
 			]
 		},

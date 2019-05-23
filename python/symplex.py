@@ -40,6 +40,8 @@ def convertSymPyToDict(code, language):
         if len(root.atoms(sympy.I)) == 0:
           code = root
           break
+  elif(type(code) == str):
+    return { "returnString": code }
 
   pythonDict = {}
   pythonDict["Variables"], pythonDict["Expression"] = sympy.cse(code)
@@ -66,8 +68,6 @@ try:
   result = None
   if(command == 'eval'):
     print(json.dumps(convertSymPyToDict(expression, language), indent=4))
-  elif(command == 'latex'):
-    print(sympy.latex(expression))
   sys.stdout.flush()
 
 finally:
