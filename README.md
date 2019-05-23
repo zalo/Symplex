@@ -8,7 +8,7 @@ A Symbolic CAS that operates directly on Javascript and Python code.
 
 ![Extremum Demo](images/Demo1.gif)
 
-## Requirements
+## Installation
 
 Symplex requires that Python and `SymPy` are installed.  `SymPy` can be installed with `pip install SymPy`.
 
@@ -35,7 +35,7 @@ Add support for
 
 ## Release Notes
 
-### 0.0.5 - Change the banner background color
+### 0.0.6 - First Release
 
 
 ### 0.0.4 - Add Snippets

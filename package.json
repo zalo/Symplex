@@ -1,9 +1,9 @@
 {
 	"name": "symplex",
 	"displayName": "Symplex",
-	"description": "A Computer Algebra System that runs on your code",
+	"description": "A Computer Algebra System for your Code",
 	"publisher": "zalo",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
@@ -21,7 +21,7 @@
 	],
 	"icon": "images/icon.png",
 	"galleryBanner": {
-    "color": "#252525",
+    "color": "#ffffff",
     "theme": "dark"
   },
 	"activationEvents": [

@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.0.5 - Change the banner background color
+## 0.0.6 - First Release
 
 
 ## 0.0.4 - Add Snippets
