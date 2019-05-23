@@ -33,6 +33,14 @@ def expressionToCode(expression, language):
 
 def convertSymPyToDict(code, language):
   '''Creates a JSONable list of lines of code from a SymPy Expression'''
+
+  # Select the first real solution
+  if(type(code) == list):
+    for root in code:
+        if len(root.atoms(sympy.I)) == 0:
+          code = root
+          break
+
   pythonDict = {}
   pythonDict["Variables"], pythonDict["Expression"] = sympy.cse(code)
   for i, expr in enumerate(pythonDict["Variables"]):

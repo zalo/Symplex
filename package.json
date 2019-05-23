@@ -37,22 +37,36 @@
 		"menus": {
 			"editor/context": [
 				{
-					"when": "editorHasSelection",
+					"when": "editorHasSelection && resourceLangId =~ /(javascript|typescript|python)/",
 					"command": "extension.Evaluate",
 					"group": "Symplex@1"
 				},
 				{
-					"when": "editorHasSelection",
-					"command": "extension.GetExpression",
+					"when": "editorHasSelection && resourceLangId =~ /(javascript|typescript|python)/",
+					"command": "extension.GetLaTeX",
 					"group": "Symplex@1"
 				},
 				{
-					"when": "editorHasSelection",
-					"command": "extension.GetLaTeX",
+					"when": "editorHasSelection && resourceLangId =~ replacewiththeabovetodebugparsing",
+					"command": "extension.GetExpression",
 					"group": "Symplex@1"
 				}
 			]
-		}
+		},
+		"snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets.json"
+			},
+			{
+        "language": "typescript",
+        "path": "./snippets.json"
+			},
+			{
+        "language": "python",
+        "path": "./snippets.json"
+      }
+    ]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
