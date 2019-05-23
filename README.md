@@ -35,6 +35,9 @@ Add support for
 
 ## Release Notes
 
+### 0.0.5 - Change the banner background color
+
+
 ### 0.0.4 - Add Snippets
 
 Group all Symplex functionality underneath the `symplex.Evaluate` command.  Add snippets which document a few of the SymPy features that Symplex exposes. 

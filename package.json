@@ -3,7 +3,7 @@
 	"displayName": "Symplex",
 	"description": "A Computer Algebra System that runs on your code",
 	"publisher": "zalo",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
