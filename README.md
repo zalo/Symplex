@@ -6,7 +6,7 @@ A Symbolic CAS that operates directly on Javascript and Python code.
 
 > Allows users to highlight blocks of math code and right-click to symbolically integrate, derive, simplify, and more!
 
-<img src="https://i.imgur.com/pgczpEk.gif">
+![Extremum Demo](images/Demo1.gif)
 
 ## Requirements
 
@@ -21,20 +21,24 @@ Symplex requires that Python and `SymPy` are installed.  `SymPy` can be installe
 
 To add a new language:
 - Implement the conversion of a block of that language's code to a SymPy string (`convertToSympy()`) inside a new `*LANGUAGE*Support.ts` file.
-- At the top of `extension.ts`, add a new case for your [language's identifier](https://code.visualstudio.com/docs/languages/identifiers), calling your `convertToSympy()` function.
+- Throughout `extension.ts`, add a new case for your [language's identifier](https://code.visualstudio.com/docs/languages/identifiers), calling your `convertToSympy()` function.
 - In `python/symplex.py`, add a case for your language's conversion (SymPy supports codegen in many languages already, so check to see if it's already there).
 - Test it by building the extension with `F5`!
 
 ### Future Work
 
 Add support for 
-- VS Code Snippets/Better GUI
 - Gradients
 - Vectors/Matrices
 - Algebraic "Functions"
 - [Wolfram CAS Backend?](https://blog.wolfram.com/2019/05/16/announcing-the-wolfram-client-library-for-python/)
 
 ## Release Notes
+
+### 0.0.4 - Add Snippets
+
+Group all Symplex functionality underneath the `symplex.Evaluate` command.  Add snippets which document a few of the SymPy features that Symplex exposes. 
+
 
 ### 0.0.3 - Major Refactor
 

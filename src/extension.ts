@@ -75,14 +75,14 @@ var symplexPath:string;
 export function activate(context: vscode.ExtensionContext) {
 	symplexPath = context.asAbsolutePath("/python/symplex.py");
 
-	// Register the Right Click Menu Actions -----------------------------------
+	// Register the Right Click Menu Actions ------------------------------------
 	{
-		let evaluate = vscode.commands.registerCommand('extension.Evaluate', () => {
+		let evaluate = vscode.commands.registerCommand('symplex.Evaluate', () => {
 			querySympy('eval', convertToSympy(utils.getCurrentSelection()), "result");
 		});
 		context.subscriptions.push(evaluate);
 
-		let expression = vscode.commands.registerCommand('extension.GetExpression', () => {
+		let expression = vscode.commands.registerCommand('symplex.GetExpression', () => {
 			var parsedExpression = convertToSympy(utils.getCurrentSelection());
 			if(vscode.window.activeTextEditor){
 				vscode.window.activeTextEditor.edit(builder => {
@@ -94,6 +94,55 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		});
 		context.subscriptions.push(expression);
+	}
+
+	// Register Handy SymPy operations ------------------------------------------
+	{
+		let symplexCompletions = { provideCompletionItems(document: vscode.TextDocument, 
+			position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
+				//Unused good stuff
+				//commandCompletion.command = { command: 'jumpToNextSnippetPlaceholder', title: 'Accept suggestion and move on...' };
+				//commandCompletion.commitCharacters = ['.'];
+
+				const integrateCompletion         = new vscode.CompletionItem('integrate');
+				const diffCompletion              = new vscode.CompletionItem('diff');
+				const solveCompletion             = new vscode.CompletionItem('solve');
+				const extremaCompletion           = new vscode.CompletionItem('extrema');
+				const latexCompletion             = new vscode.CompletionItem('latex');
+
+				integrateCompletion.insertText    = new vscode.SnippetString('integrate(${1:expression}, ${2:var})');
+				diffCompletion.insertText         = new vscode.SnippetString('diff(${1:expression}, ${2:var})');
+				solveCompletion.insertText        = new vscode.SnippetString('solve(${1:expression}, ${2:withRespectTo})');
+				extremaCompletion.insertText      = new vscode.SnippetString('solve(diff(${1:expression}, ${2:withRespectTo}), ${2})');
+				latexCompletion.insertText        = new vscode.SnippetString('latex(${1:expression})');
+
+				integrateCompletion.documentation = new vscode.MarkdownString('Symplex: Symbolic Integral with respect to `var`');
+				diffCompletion.documentation      = new vscode.MarkdownString('Symplex: Symbolic Derivative with respect to `var`');
+				solveCompletion.documentation     = new vscode.MarkdownString('Symplex: Symbolic Integral with respect to `var`');
+				extremaCompletion.documentation   = new vscode.MarkdownString('Symplex: Symbolic Extrema with respect to `var` \nNote: Only returns the first real extremum.');
+				latexCompletion.documentation     = new vscode.MarkdownString('Symplex: Generate LaTeX from Expressions');
+
+				integrateCompletion.kind          = vscode.CompletionItemKind.Method;
+				diffCompletion.kind               = vscode.CompletionItemKind.Method;
+				solveCompletion.kind              = vscode.CompletionItemKind.Method;
+				extremaCompletion.kind            = vscode.CompletionItemKind.Method;
+				latexCompletion.kind              = vscode.CompletionItemKind.Method;
+
+				return [
+					integrateCompletion,
+					diffCompletion,
+					solveCompletion,
+					extremaCompletion,
+					latexCompletion
+				];
+			}
+		};
+
+		let symplexJavascriptCompletions = vscode.languages.registerCompletionItemProvider({language:'javascript', scheme:'file'}, symplexCompletions);
+		let symplexTypescriptCompletions = vscode.languages.registerCompletionItemProvider({language:'typescript', scheme:'file'}, symplexCompletions);
+		let symplexPythonCompletions     = vscode.languages.registerCompletionItemProvider({language:'python',     scheme:'file'}, symplexCompletions);
+
+		context.subscriptions.push(symplexJavascriptCompletions, symplexTypescriptCompletions, symplexPythonCompletions);
 	}
 }
 

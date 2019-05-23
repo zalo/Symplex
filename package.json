@@ -1,8 +1,9 @@
 {
 	"name": "symplex",
 	"displayName": "Symplex",
-	"description": "Symbolic Manipulation for VS Code",
-	"version": "0.0.3",
+	"description": "A Computer Algebra System that runs on your code",
+	"publisher": "zalo",
+	"version": "0.0.4",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
@@ -13,19 +14,32 @@
 	"categories": [
 		"Other"
 	],
+	"keywords": [
+		"algebra", "calculus", "symbolic",
+		"integrate", "latex", "sympy",
+		"symplex", "cas", "computer algebra system"
+	],
+	"icon": "images/icon.png",
+	"galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
 	"activationEvents": [
-		"onCommand:extension.Evaluate",
-		"onCommand:extension.GetExpression"
+		"onLanguage:javascript",
+		"onLanguage:typescript",
+		"onLanguage:python",
+		"onCommand:symplex.Evaluate",
+		"onCommand:symplex.GetExpression"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.Evaluate",
+				"command": "symplex.Evaluate",
 				"title": "Symplex: Symbolic Evaluate"
 			},
 			{
-				"command": "extension.GetExpression",
+				"command": "symplex.GetExpression",
 				"title": "Symplex: Get Expression"
 			}
 		],
@@ -33,30 +47,16 @@
 			"editor/context": [
 				{
 					"when": "editorHasSelection && resourceLangId =~ /(javascript|typescript|python)/",
-					"command": "extension.Evaluate",
+					"command": "symplex.Evaluate",
 					"group": "navigation@0"
 				},
 				{
-					"when": "editorHasSelection && resourceLangId =~ replacewiththeabovetodebugparsing",
-					"command": "extension.GetExpression",
+					"when": "editorHasSelection && resourceLangId =~ REPLACEWITHTHEABOVETODEBUGPARSING",
+					"command": "symplex.GetExpression",
 					"group": "navigation@1"
 				}
 			]
-		},
-		"snippets": [
-      {
-        "language": "javascript",
-        "path": "./snippets.json"
-			},
-			{
-        "language": "typescript",
-        "path": "./snippets.json"
-			},
-			{
-        "language": "python",
-        "path": "./snippets.json"
-      }
-    ]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
