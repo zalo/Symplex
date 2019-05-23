@@ -35,7 +35,7 @@ Add support for
 
 ## Release Notes
 
-### 0.0.6 - First Release
+### 0.0.7 - First Release
 
 
 ### 0.0.4 - Add Snippets
