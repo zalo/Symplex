@@ -56,7 +56,21 @@
 					"group": "navigation@1"
 				}
 			]
-		}
+		},
+		"snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippetsDummy.json"
+			},
+			{
+        "language": "typescript",
+        "path": "./snippetsDummy.json"
+			},
+			{
+        "language": "python",
+        "path": "./snippetsDummy.json"
+      }
+    ]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

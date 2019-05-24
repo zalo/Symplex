@@ -1,0 +1,58 @@
+{
+	"Integrate": {
+    "prefix": "integrate",
+    "scope": "javascript,typescript,python",
+		"body": [
+      "integrate(${1:expression}, ${2:var})"
+		],
+		"description": "Symbolic Integral with respect to `var`",
+  },
+  "Derivative": {
+    "prefix": "diff",
+    "scope": "javascript,typescript,python",
+		"body": [
+			"diff(${1:expression}, ${2:var})"
+		],
+		"description": "Symbolic Derivative with respect to `var`"
+	},
+	"Limit": {
+    "prefix": "limit",
+    "scope": "javascript,typescript,python",
+		"body": [
+			"limit(${1:expression}, ${2:var}, ${3:value})"
+		],
+		"description": "Symbolic Limit as `var` approaches `value`"
+	},
+	"series": {
+    "prefix": "series",
+    "scope": "javascript,typescript,python",
+		"body": [
+			"series(${1:expression}, ${2:var}, ${3:centerValue})"
+		],
+		"description": "Symbolic Series Expansion of the region `var` = `value` to the 6th order"
+	},
+  "Solve": {
+    "prefix": "solve",
+    "scope": "javascript,typescript,python",
+		"body": [
+			"solve(${1:expression}, ${2:var})"
+		],
+		"description": "Symbolic Solving for `var`"
+	},
+	"Extremum": {
+    "prefix": "extremum",
+    "scope": "javascript,typescript,python",
+		"body": [
+			"solve(diff(${1:expression}, ${2:var}), ${2})"
+		],
+		"description": "Symbolic Extrema with respect to `var` \nNote: Only returns the first real extremum."
+	},
+  "LaTeX": {
+    "prefix": "latex",
+    "scope": "javascript,typescript,python",
+		"body": [
+			"${1|latex,simplify|}(${2:expression})"
+		],
+		"description": "Generate LaTeX from Expressions.\nUse `Integral`, `Derivative` for unevaluated symbols."
+  }
+}

@@ -115,16 +115,16 @@ export function activate(context: vscode.ExtensionContext) {
 				diffCompletion.insertText         = new vscode.SnippetString('diff(${1:expression}, ${2:var})');
 				limitCompletion.insertText        = new vscode.SnippetString('limit(${1:expression}, ${2:var}, ${3:value})');
 				seriesCompletion.insertText       = new vscode.SnippetString('series(${1:expression}, ${2:var}, ${3:centerValue})');
-				solveCompletion.insertText        = new vscode.SnippetString('solve(${1:expression}, ${2:withRespectTo})');
-				extremumCompletion.insertText     = new vscode.SnippetString('solve(diff(${1:expression}, ${2:withRespectTo}), ${2})');
+				solveCompletion.insertText        = new vscode.SnippetString('solve(${1:expression}, ${2:var})');
+				extremumCompletion.insertText     = new vscode.SnippetString('solve(diff(${1:expression}, ${2:var}), ${2})');
 				latexCompletion.insertText        = new vscode.SnippetString('latex(${1:expression})');
 
 				integrateCompletion.documentation = new vscode.MarkdownString('Symplex: Symbolic Integral with respect to `var`');
 				diffCompletion.documentation      = new vscode.MarkdownString('Symplex: Symbolic Derivative with respect to `var`');
 				limitCompletion.documentation     = new vscode.MarkdownString('Symplex: Symbolic Limit as `var` approaches `value`');
 				seriesCompletion.documentation    = new vscode.MarkdownString('Symplex: Symbolic Series Expansion of the region `var` = `value` to the 6th order');
-				solveCompletion.documentation     = new vscode.MarkdownString('Symplex: Symbolic Integral with respect to `var`');
-				extremumCompletion.documentation  = new vscode.MarkdownString('Symplex: Symbolic Extrema with respect to `var` \nNote: Only returns the first real extremum.');
+				solveCompletion.documentation     = new vscode.MarkdownString('Symplex: Symbolic Solving for `var`');
+				extremumCompletion.documentation  = new vscode.MarkdownString('Symplex: Symbolic Extrema with respect to `var`. \nNote: Only returns the first real extremum.');
 				latexCompletion.documentation     = new vscode.MarkdownString('Symplex: Generate LaTeX from Expressions');
 
 				integrateCompletion.kind          = vscode.CompletionItemKind.Method;
