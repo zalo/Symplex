@@ -4,7 +4,7 @@ import * as utils from './utils';
 export function convertToSympy(source:string) {
 	let code = '';
 	let replacementDict:any = {};
-	let nocr = source.replace("\r", "");
+	let nocr = utils.replaceAll(source, "\r", "");
 	let lines = nocr.split("\n");
 	let counter = 0;
 	lines.forEach(line => {
