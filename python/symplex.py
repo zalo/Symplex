@@ -1,6 +1,5 @@
 import sys
 import sympy
-from sympy import jscode
 import json
 import faulthandler
 
@@ -28,8 +27,8 @@ def expressionToCode(expression, language):
     return sympy.octave_code(expression)
   elif(language == "rust"):
     return sympy.rust_code(expression)
-  elif(language == "theano"):
-    return sympy.theano_code(expression)
+#  elif(language == "theano"):
+#    return sympy.theano_code(expression)
 
 def convertSymPyToDict(code, language):
   '''Creates a JSONable list of lines of code from a SymPy Expression'''
