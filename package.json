@@ -4,26 +4,33 @@
 	"description": "A Computer Algebra System for your code",
 	"publisher": "zalo",
 	"version": "0.0.8",
+	"license": "MIT",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
-	"repository": { 
-		"type": "git", 
+	"repository": {
+		"type": "git",
 		"url": "https://github.com/zalo/Symplex.git"
 	},
 	"categories": [
 		"Other"
 	],
 	"keywords": [
-		"algebra", "calculus", "symbolic",
-		"integrate", "latex", "sympy",
-		"symplex", "cas", "computer algebra system"
+		"algebra",
+		"calculus",
+		"symbolic",
+		"integrate",
+		"latex",
+		"sympy",
+		"symplex",
+		"cas",
+		"computer algebra system"
 	],
 	"icon": "images/icon.png",
 	"galleryBanner": {
-    "color": "#ffffff",
-    "theme": "light"
-  },
+		"color": "#ffffff",
+		"theme": "light"
+	},
 	"activationEvents": [
 		"onLanguage:javascript",
 		"onLanguage:typescript",
@@ -58,19 +65,19 @@
 			]
 		},
 		"snippets": [
-      {
-        "language": "javascript",
-        "path": "./snippetsDummy.json"
+			{
+				"language": "javascript",
+				"path": "./snippetsDummy.json"
 			},
 			{
-        "language": "typescript",
-        "path": "./snippetsDummy.json"
+				"language": "typescript",
+				"path": "./snippetsDummy.json"
 			},
 			{
-        "language": "python",
-        "path": "./snippetsDummy.json"
-      }
-    ]
+				"language": "python",
+				"path": "./snippetsDummy.json"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -79,10 +86,9 @@
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"devDependencies": {
-		"@types/node": "^10.12.21",
-		"tslint": "^5.12.1",
-		"typescript": "^3.3.1",
-		"vscode": "^1.1.28"
+		"@types/node": "^10.17.51",
+		"@types/vscode": "^1.52.0",
+		"tslint": "^5.20.1"
 	},
 	"dependencies": {
 		"typescript": "^3.1.1"
