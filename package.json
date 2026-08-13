@@ -3,10 +3,10 @@
 	"displayName": "Symplex",
 	"description": "A Computer Algebra System for your code",
 	"publisher": "zalo",
-	"version": "0.0.8",
+	"version": "0.2.0",
 	"license": "MIT",
 	"engines": {
-		"vscode": "^1.33.0"
+		"vscode": "^1.90.0"
 	},
 	"repository": {
 		"type": "git",
@@ -34,9 +34,7 @@
 	"activationEvents": [
 		"onLanguage:javascript",
 		"onLanguage:typescript",
-		"onLanguage:python",
-		"onCommand:symplex.Evaluate",
-		"onCommand:symplex.GetExpression"
+		"onLanguage:python"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -53,44 +51,67 @@
 		"menus": {
 			"editor/context": [
 				{
-					"when": "editorHasSelection && resourceLangId =~ /(javascript|typescript|python)/",
+					"when": "editorHasSelection && resourceLangId =~ /^(javascript|typescript|python)$/",
 					"command": "symplex.Evaluate",
 					"group": "navigation@0"
 				},
 				{
-					"when": "editorHasSelection && resourceLangId =~ REPLACEWITHTHEABOVETODEBUGPARSING",
+					"when": "editorHasSelection && resourceLangId =~ /^(javascript|typescript|python)$/",
 					"command": "symplex.GetExpression",
 					"group": "navigation@1"
 				}
 			]
 		},
-		"snippets": [
-			{
-				"language": "javascript",
-				"path": "./snippetsDummy.json"
-			},
-			{
-				"language": "typescript",
-				"path": "./snippetsDummy.json"
-			},
-			{
-				"language": "python",
-				"path": "./snippetsDummy.json"
+		"configuration": {
+			"title": "Symplex",
+			"properties": {
+				"symplex.engine": {
+					"type": "string",
+					"enum": [
+						"embedded",
+						"embedded-brython",
+						"system"
+					],
+					"default": "embedded",
+					"enumDescriptions": [
+						"Run SymPy inside the extension via Pyodide (WebAssembly). No Python installation required.",
+						"Run SymPy inside the extension via Brython (Python transpiled to JavaScript). Lighter than Pyodide, slower per evaluation. No Python installation required.",
+						"Run SymPy with a locally installed Python interpreter (requires `pip install sympy`)."
+					],
+					"description": "Which SymPy engine to use for symbolic evaluation."
+				},
+				"symplex.pythonPath": {
+					"type": "string",
+					"default": "",
+					"description": "Path to the Python interpreter used by the 'system' engine. Leave empty to use 'python3' (or 'python' on Windows) from PATH."
+				},
+				"symplex.timeoutSeconds": {
+					"type": "number",
+					"default": 15,
+					"description": "Maximum time in seconds a symbolic evaluation may run before it is cancelled."
+				}
 			}
-		]
+		}
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
+		"vscode:prepublish": "npm run compile && npm run fetch-wheels && npm run fetch-brython-libs",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"lint": "eslint src",
+		"fetch-wheels": "node ./scripts/fetchWheels.js",
+		"fetch-brython-libs": "node ./scripts/fetchBrythonLibs.js",
+		"pretest": "npm run compile",
+		"test": "node --test \"out/test/*.test.js\""
 	},
 	"devDependencies": {
-		"@types/node": "^10.17.51",
-		"@types/vscode": "^1.52.0",
-		"tslint": "^5.20.1"
+		"adm-zip": "^0.5.14",
+		"@types/node": "^20.14.0",
+		"@types/vscode": "^1.90.0",
+		"eslint": "^9.9.0",
+		"typescript-eslint": "^8.0.0"
 	},
 	"dependencies": {
-		"typescript": "^3.1.1"
+		"pyodide": "^314.0.3",
+		"typescript": "^5.9.0"
 	}
 }
