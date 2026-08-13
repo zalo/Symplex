@@ -1,73 +1,89 @@
-import sys
-import sympy
+"""Symplex SymPy backend.
+
+Importable (used by the extension's embedded Pyodide engine, which calls
+`evaluate()` directly) and runnable as a CLI (used by the system-Python
+engine):  python symplex.py eval <language> <expression>
+"""
 import json
-import faulthandler
+import sys
 
-# Sympy has direct support for ccode (C), cxxcode (C++), rcode (R), 
-# fcode (fortran), mathematica_code, jscode (javascript), julia_code,
-# octave_code, rust_code, theano_code, and pycode
-# More languages may be added with custom printers, or find/replace on these
-def expressionToCode(expression, language):
-  '''Converts a SymPy Expression to a line of code in the target language'''
-  if  (language == "python"):
-    return sympy.pycode(expression)
-  elif(language == "javascript" or language == "typescript"):
-    return sympy.jscode(expression)
-  elif(language == "c"):
-    return sympy.ccode(expression)
-  elif(language == "cpp"):
-    return sympy.cxxcode(expression)
-  elif(language == "r"):
-    return sympy.rcode(expression)
-  elif(language == "fortran"):
-    return sympy.fcode(expression)
-  elif(language == "mathematica"):
-    return sympy.mathematica_code(expression)
-  elif(language == "matlab" or language == "octave"):
-    return sympy.octave_code(expression)
-  elif(language == "rust"):
-    return sympy.rust_code(expression)
-#  elif(language == "theano"):
-#    return sympy.theano_code(expression)
+import sympy
 
-def convertSymPyToDict(code, language):
-  '''Creates a JSONable list of lines of code from a SymPy Expression'''
+# SymPy has direct support for ccode (C), cxxcode (C++), rcode (R),
+# fcode (Fortran), mathematica_code, jscode (JavaScript), julia_code,
+# octave_code, rust_code, and pycode.
+# More languages may be added with custom printers, or find/replace on these.
+CODE_PRINTERS = {
+    "python":      sympy.pycode,
+    "javascript":  sympy.jscode,
+    "typescript":  sympy.jscode,
+    "c":           sympy.ccode,
+    "cpp":         sympy.cxxcode,
+    "r":           sympy.rcode,
+    "fortran":     sympy.fcode,
+    "mathematica": sympy.mathematica_code,
+    "matlab":      sympy.octave_code,
+    "octave":      sympy.octave_code,
+    "julia":       sympy.julia_code,
+    "rust":        sympy.rust_code,
+}
 
-  # Select the first real solution
-  if(type(code) == list):
-    for root in code:
-        if len(root.atoms(sympy.I)) == 0:
-          code = root
-          break
-  elif(type(code) == str):
-    return { "returnString": code }
 
-  pythonDict = {}
-  pythonDict["Variables"], pythonDict["Expression"] = sympy.cse(code)
-  for i, expr in enumerate(pythonDict["Variables"]):
-    pythonDict["Variables"][i] = {
-      "name" : str(expr[0]),
-      "expr" : str(expressionToCode(expr[1], language))
+def expression_to_code(expression, language):
+    """Converts a SymPy expression to a line of code in the target language."""
+    printer = CODE_PRINTERS.get(language, str)
+    return printer(expression)
+
+
+def evaluate(language, expression_string):
+    """Symbolically evaluates an expression string and returns a JSONable dict.
+
+    The result is either {"returnString": ...} for plain-text results (e.g.
+    latex()), or {"Variables": [{"name", "expr"}, ...], "Expression": ...}
+    where common subexpressions have been factored out into Variables.
+    """
+    expression = sympy.sympify(expression_string)
+    if expression is None:
+        raise ValueError("SymPy could not interpret the expression: %r" % expression_string)
+
+    # Some operations (e.g. solve) return a list of solutions;
+    # select the first solution without imaginary parts.
+    if isinstance(expression, (list, tuple)):
+        real_roots = [root for root in expression if not root.atoms(sympy.I)]
+        if not real_roots:
+            return {"returnString": "No real solutions found. All solutions: %s"
+                                    % str(expression)}
+        expression = real_roots[0]
+    elif isinstance(expression, str):
+        # Operations like latex() return a raw string to insert verbatim.
+        return {"returnString": expression}
+
+    variables, reduced = sympy.cse(expression)
+    return {
+        "Variables": [
+            {"name": str(symbol), "expr": str(expression_to_code(subexpr, language))}
+            for symbol, subexpr in variables
+        ],
+        "Expression": str(expression_to_code(reduced[0], language)),
     }
-  pythonDict["Expression"] = expressionToCode(pythonDict["Expression"][0], language)
-  return pythonDict
 
-# Begin Parsing
-faulthandler.enable()
 
-try:
-  # Timeout after 10 seconds if it doesn't return
-  faulthandler.dump_traceback_later(10)
+def main(argv):
+    command, language, expression_string = argv[1], argv[2], argv[3]
+    if command != "eval":
+        raise ValueError("Unknown command: %r" % command)
+    print(json.dumps(evaluate(language, expression_string), indent=4))
+    sys.stdout.flush()
 
-  command  = sys.argv[1]
-  language = sys.argv[2]
-  expression = sympy.sympify(sys.argv[3])
-  assert expression is not None, "SymPy Error: Cannot evaluate expression!"
 
-  result = None
-  if(command == 'eval'):
-    print(json.dumps(convertSymPyToDict(expression, language), indent=4))
-  sys.stdout.flush()
-
-finally:
-  faulthandler.cancel_dump_traceback_later()
+if __name__ == "__main__":
+    import faulthandler
+    faulthandler.enable()
+    # Hard timeout: dump a traceback and exit if evaluation wedges.
+    # (dump_traceback_later without exit=True only prints — it doesn't stop anything.)
+    timeout = float(sys.argv[4]) if len(sys.argv) > 4 else 15.0
+    faulthandler.dump_traceback_later(timeout, exit=True)
+    try:
+        main(sys.argv)
+    finally:
+        faulthandler.cancel_dump_traceback_later()

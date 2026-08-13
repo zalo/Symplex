@@ -16,20 +16,36 @@ A Symbolic CAS that operates directly on Javascript and Python code.
 
 ## Requirements
 
-Symplex requires that Python and `SymPy` are installed.  `SymPy` can be installed with `pip install SymPy`.
+None!  SymPy 1.14 runs inside the extension via [Pyodide](https://pyodide.org) (CPython compiled to WebAssembly).
+
+If you would rather use a locally installed Python (`pip install sympy`), set `"symplex.engine": "system"` — and point `"symplex.pythonPath"` at your interpreter if it isn't `python3`/`python` on your PATH.
+
+## Settings
+
+- `symplex.engine` — `embedded` (default, Pyodide) or `system` (local Python subprocess).
+- `symplex.pythonPath` — interpreter used by the `system` engine.
+- `symplex.timeoutSeconds` — how long a symbolic evaluation may run before it is cancelled (default 15).
 
 ## Known Issues
 
-- Javascript parsing is somewhat fragile, this is due for a major refactor to better accomodate for the inconsistences in the nodegraph sourceFile output.
-- Only variable assignment and basic arithmetic/trigonometric operations on real numbers are supported.  No for-Loops, control-statements, etc.
+- Only variable assignment and basic arithmetic/trigonometric operations on real numbers are supported.  No for-Loops, control-statements, etc.  Unsupported syntax now fails with an explanatory error instead of producing corrupted expressions.
 
 ## Adding new languages
 
 To add a new language:
-- Implement the conversion of a block of that language's code to a SymPy string (`convertToSympy()`) inside a new `*LANGUAGE*Support.ts` file.
-- Throughout `extension.ts`, add a new case for your [language's identifier](https://code.visualstudio.com/docs/languages/identifiers), calling your `convertToSympy()` function.
-- In `python/symplex.py`, add a case for your language's conversion (SymPy supports codegen in many languages already, so check to see if it's already there).
-- Add it to the `package.json` as well and Test it by building the extension with `F5`!
+- Implement the conversion of a block of that language's code to a SymPy string (`convertToSympy()`) in a new file under `src/converters/`.
+- In `src/extension.ts`, add a case for your [language's identifier](https://code.visualstudio.com/docs/languages/identifiers) to `convertToSympy()`, and an entry to `CODE_STYLES`.
+- In `python/symplex.py`, add an entry to `CODE_PRINTERS` (SymPy supports codegen in many languages already, so check to see if it's already there).
+- Add it to the `package.json` menus/activation events as well, and test it by launching the extension with `F5`!
+
+## Development
+
+```bash
+npm install
+npm run compile     # or: npm run watch
+npm test            # converter unit tests + an end-to-end embedded-SymPy test
+npm run fetch-wheels  # cache the SymPy wheels locally for offline/packaged use
+```
 
 ### Future Work
 
