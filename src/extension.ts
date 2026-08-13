@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as js from './converters/javascript';
 import * as py from './converters/python';
 import { ConversionResult } from './converters/types';
+import { BrythonEngine } from './engines/brythonEngine';
 import { PyodideEngine } from './engines/pyodideEngine';
 import { SystemPythonEngine } from './engines/systemPythonEngine';
 import { SympyEngine, SympyResult } from './engines/types';
@@ -61,6 +62,9 @@ function getEngine(context: vscode.ExtensionContext): SympyEngine {
 		const pythonPath = configuredPython ||
 			(process.platform === 'win32' ? 'python' : 'python3');
 		engine = new SystemPythonEngine(pythonPath, symplexPyPath);
+	} else if (kind === 'embedded-brython') {
+		engine = new BrythonEngine(context.asAbsolutePath(path.join('vendor', 'brython')),
+			symplexPyPath);
 	} else {
 		// Prefer SymPy wheels shipped with the extension; fall back to a
 		// writable cache that Pyodide fills from its CDN on first use.

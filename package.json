@@ -3,7 +3,7 @@
 	"displayName": "Symplex",
 	"description": "A Computer Algebra System for your code",
 	"publisher": "zalo",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.90.0"
@@ -69,11 +69,13 @@
 					"type": "string",
 					"enum": [
 						"embedded",
+						"embedded-brython",
 						"system"
 					],
 					"default": "embedded",
 					"enumDescriptions": [
 						"Run SymPy inside the extension via Pyodide (WebAssembly). No Python installation required.",
+						"Run SymPy inside the extension via Brython (Python transpiled to JavaScript). Lighter than Pyodide, slower per evaluation. No Python installation required.",
 						"Run SymPy with a locally installed Python interpreter (requires `pip install sympy`)."
 					],
 					"description": "Which SymPy engine to use for symbolic evaluation."
@@ -92,15 +94,17 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile && npm run fetch-wheels",
+		"vscode:prepublish": "npm run compile && npm run fetch-wheels && npm run fetch-brython-libs",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"lint": "eslint src",
 		"fetch-wheels": "node ./scripts/fetchWheels.js",
+		"fetch-brython-libs": "node ./scripts/fetchBrythonLibs.js",
 		"pretest": "npm run compile",
 		"test": "node --test \"out/test/*.test.js\""
 	},
 	"devDependencies": {
+		"adm-zip": "^0.5.14",
 		"@types/node": "^20.14.0",
 		"@types/vscode": "^1.90.0",
 		"eslint": "^9.9.0",

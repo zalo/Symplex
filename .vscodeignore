@@ -12,5 +12,7 @@ vsc-extension-quickstart.md
 **/*.vsix
 node_modules/.bin/**
 node_modules/@types/**
+node_modules/adm-zip/**
 node_modules/eslint/**
 node_modules/typescript-eslint/**
+vendor/brython/lib/**/tests/**

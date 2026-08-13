@@ -18,11 +18,15 @@ A Symbolic CAS that operates directly on Javascript and Python code.
 
 None!  SymPy 1.14 runs inside the extension via [Pyodide](https://pyodide.org) (CPython compiled to WebAssembly).
 
-If you would rather use a locally installed Python (`pip install sympy`), set `"symplex.engine": "system"` — and point `"symplex.pythonPath"` at your interpreter if it isn't `python3`/`python` on your PATH.
+Two alternative engines are available:
+- `"symplex.engine": "embedded-brython"` runs SymPy via [Brython](https://brython.info) (Python transpiled to JavaScript) using the patched build in `vendor/brython` (see [brython-dev/brython#2912](https://github.com/brython-dev/brython/pull/2912)).  Also requires no Python installation.
+- `"symplex.engine": "system"` uses a locally installed Python (`pip install sympy`) — point `"symplex.pythonPath"` at your interpreter if it isn't `python3`/`python` on your PATH.
+
+Measured on the same machine, per engine: Pyodide ~1s cold start, near-instant evaluations, ~220 MB resident; Brython ~8s cold start, ~0.3s evaluations, ~640 MB resident.  Both are fully unloaded after 5 idle minutes.
 
 ## Settings
 
-- `symplex.engine` — `embedded` (default, Pyodide) or `system` (local Python subprocess).
+- `symplex.engine` — `embedded` (default, Pyodide), `embedded-brython` (Brython), or `system` (local Python subprocess).
 - `symplex.pythonPath` — interpreter used by the `system` engine.
 - `symplex.timeoutSeconds` — how long a symbolic evaluation may run before it is cancelled (default 15).
 

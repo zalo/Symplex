@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.2.0 - Brython Engine
+
+- New optional engine `"symplex.engine": "embedded-brython"`: SymPy 1.14 running on Brython (Python transpiled to JavaScript) inside a worker thread, no Python installation required. Uses the patched Brython build from [brython-dev/brython#2912](https://github.com/brython-dev/brython/pull/2912) vendored in `vendor/brython` (stock Brython releases miscompute SymPy results).
+- Engines now share a common worker harness (timeouts, idle shutdown after 5 minutes, crash recovery).
+
 ## 0.1.0 - Embedded SymPy + Parser Overhaul
 
 - SymPy 1.14 now runs **inside the extension** via Pyodide (CPython on WebAssembly) — no Python installation required. The old subprocess mode is still available via `"symplex.engine": "system"`.

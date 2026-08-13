@@ -1,5 +1,6 @@
 out
 node_modules
 wheels
+vendor/brython/lib
 .vscode-test/
 *.vsix
